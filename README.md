@@ -24,25 +24,23 @@ The core of this agent lies in its effective use of prompt and context engineeri
 
 Follow these steps to get the agent running on your local machine.
 
-1. Prerequisites: Install Ollama
+#### Prerequisites: Install Ollama
 You must have Ollama installed and running.
 Download from the official Ollama website.
 After installation, pull a model. We recommend llama3:8b for a good balance of performance and capability on a CPU.
 ollama pull llama3:8b
 - Ensure the Ollama application is running in the background.
 
-2. Clone the Repository & Install Dependencies
-First, save the Python code as app.py in a new project directory. Then, install the required Python libraries.
 
 #### Create a project directory
-mkdir llama-text-agent && cd llama-text-agent
+    mkdir llama-text-agent && cd llama-text-agent
 
 #### It's recommended to use a virtual environment
-python -m venv venv
+    python -m venv venv
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 #### Install the required packages
-pip install streamlit langchain langchain-community faiss-cpu tiktoken
+    pip install - r requirements.txt
 
 ## How to Run
 
@@ -53,28 +51,23 @@ With Ollama running and the dependencies installed, launch the Streamlit applica
 Your web browser should automatically open a new tab with the application running.
 
 ## 🧠 How It Works: Prompt & Context Engineering
+
 The agent's effectiveness comes from two specialized Langchain strategies designed to handle large texts and ensure factual grounding.
 
 1. Question-Answering: Retrieval-Augmented Generation (RAG)
+
 To answer questions accurately, the agent uses a RAG pipeline. This avoids stuffing the entire document into the model's limited context window.
 * Chunking: The uploaded text is split into small, overlapping chunks.
 * Embedding & Indexing: Each chunk is converted into a numerical vector (an embedding) using the local Llama model.  These vectors are stored in a FAISS vector store for efficient searching.
 * Retrieval: When you ask a question, it's also converted into a vector. FAISS finds the text chunks with the most similar vectors, which are the parts of the text most relevant to your question.
 * Prompting & Generation: These relevant chunks are inserted into a carefully engineered prompt that instructs the LLM to answer only based on the provided context. This significantly reduces the chance of the model making things up.
 
-The Q&A prompt is designed to be robust:
-You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+#### The Q&A prompt is designed to be robust:
 
-Context:
----
-{context}
----
-
-Question: {question}
-
-Answer:
+__You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.__
 
 2. Summarization: Map-Reduce Chain
+
 Summarizing a large document that doesn't fit in the model's context is handled with a map_reduce chain.
 * Map Step: The agent "maps" over every text chunk and generates a short summary for each one individually.
 * Reduce Step: It then takes all the individual summaries and "reduces" them by feeding them into the model one final time to create a single, coherent summary of the entire document.
