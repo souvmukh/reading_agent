@@ -1,0 +1,7 @@
+langchain
+langchain-ollama
+Langchain-chroma
+streamlit
+langchain-community
+faiss-cpu
+transformers
