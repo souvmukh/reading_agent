@@ -9,7 +9,7 @@ def random_string(base_string, length=5):
     """
     import random
     import string
-    return base_string.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return base_string + ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 def setup_sidebar():
     """
