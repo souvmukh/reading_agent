@@ -1,6 +1,7 @@
 # ui.py
 import streamlit as st
 import core  # Import the core logic module
+from logger_config import logger, st_log_handler # Import logger and handler
 
 def random_string(base_string, length=5):
     """
@@ -43,6 +44,7 @@ def handle_summarization(llm, texts):
     """
     st.subheader("Summarize the Document")
     if st.button("Generate Summary"):
+        logger.info("@ui@handle_summarization: Starting summarization process.")
         with st.spinner(f"Generating summary..."):
             # Create documents for the chain
             text_splitter = core.RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -63,17 +65,20 @@ def handle_qa(llm, vectorstore):
     user_question = st.text_input("Enter your question here:")
     if st.button("Get Answer"):
         if user_question:
+            logger.info(f"@ui@handle_qa - Starting Q&A process for question: '{user_question}'")
             with st.spinner(f"Searching for the answer..."):
                 qa_chain = core.get_qa_chain(llm, vectorstore)
                 result = qa_chain.invoke({"query": user_question})
-                
+                logger.info(f"@ui@handle_qa: Q&A process completed with result: {result['result']}")  
                 st.markdown("### Answer:")
                 st.write(result["result"])
 
                 with st.expander("Show source context"):
                     st.write(result["source_documents"])
+            logger.info("@ui@handle_qa - Q&A process completed.")
         else:
             st.warning("Please enter a question.")
+            logger.warning("@ui@handle_qa: User clicked 'Get Answer' without entering a question.")
 
 def main_page(llm, embeddings):
     """
@@ -89,12 +94,14 @@ def main_page(llm, embeddings):
         try:
             raw_text = uploaded_file.read().decode("utf-8")
             st.info("File successfully uploaded and read.")
+            logger.info(f"@ui@main_page: File '{uploaded_file.name}' uploaded successfully.")
 
             # Get configuration from sidebar
             _, chunk_size, chunk_overlap = setup_sidebar()
             
             # Process text and create vector store
             texts = core.get_text_chunks(raw_text, chunk_size, chunk_overlap)
+            st.info(f"📄 Document has been split into **{len(texts)}** chunks.")
             vectorstore = core.create_vector_store(texts, embeddings)
             st.success("Vector store created. Ready for summarization and Q&A.")
 
@@ -109,3 +116,6 @@ def main_page(llm, embeddings):
             st.error(f"An error occurred: {e}")
     else:
         st.warning("Please upload a .txt document to begin.")
+
+    with st.expander("Show Application Logs"):
+        st.code('\n'.join(st_log_handler.records), language='log')

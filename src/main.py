@@ -165,6 +165,15 @@
 import streamlit as st
 import core  # Import the core logic
 import ui    # Import the UI components
+from logger_config import logger # This import initializes the logger
+import asyncio
+import sys
+
+# --- FIX for RuntimeError: no running event loop on Windows ---
+# This is a workaround for a known issue with Streamlit and other async libraries on Windows.
+# It sets the asyncio event loop policy to be compatible with Tornado (used by Streamlit).
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 def main():
     """
@@ -173,7 +182,7 @@ def main():
     # --- Page Configuration ---
     st.set_page_config(page_title="Llama Text Agent 📝", layout="wide")
     st.title("📄 Llama-Powered Text Reading and Analysis Agent")
-
+    logger.info("main: @main - Application started.")
     # --- Setup and Initialization ---
     selected_model, chunk_size, chunk_overlap = ui.setup_sidebar()
     llm, embeddings = core.initialize_components(selected_model)

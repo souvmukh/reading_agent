@@ -77,3 +77,5 @@ Summarizing a large document that doesn't fit in the model's context is handled 
 * Select a Llama Model: Choose any model you have downloaded in Ollama.
 * Text Chunk Size: Defines the size of each text chunk. Smaller chunks are processed faster but might lose some context between them.
 * Text Chunk Overlap: Defines how many characters overlap between consecutive chunks. This helps maintain context and ensures that sentences aren't awkwardly split.
+
+### testWithPythagoras.txt is a test file
